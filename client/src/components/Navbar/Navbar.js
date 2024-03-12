@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useDebugValue } from "react";
-import { Link, useNavigate ,useLocation} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { AppBar, Avatar, Button, Toolbar, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
+import {jwtDecode} from "jwt-decode";
 import useStyles from "./styles.js";
 import image from "../../images/images.png";
 const Navbar = () => {
@@ -9,7 +10,7 @@ const Navbar = () => {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")));
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location=useLocation()
+  const location = useLocation();
   const logout = () => {
     dispatch({ type: "LOGOUT" });
     navigate.push("/");
@@ -17,7 +18,10 @@ const Navbar = () => {
   };
   useEffect(() => {
     const token = user?.token;
-    //JWT
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      if(decodedToken.exp*1000<new Date().getTime()) logout();
+    }
     setUser(JSON.parse(localStorage.getItem("profile")));
   }, [location]);
   return (
